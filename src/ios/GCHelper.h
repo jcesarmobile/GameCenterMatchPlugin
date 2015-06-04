@@ -25,7 +25,6 @@
     UIViewController *presentingViewController;
     GKMatch *match;
     BOOL matchStarted;
-    id <GCHelperDelegate> delegate;
     NSMutableDictionary *playersDict;
     GKInvite *pendingInvite;
     NSArray *pendingPlayersToInvite;

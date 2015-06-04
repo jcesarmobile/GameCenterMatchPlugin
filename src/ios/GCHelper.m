@@ -25,16 +25,16 @@ static GCHelper *sharedHelper = nil;
 }
 
 - (BOOL)isGameCenterAvailable {
-	// check for presence of GKLocalPlayer API
-	Class gcClass = (NSClassFromString(@"GKLocalPlayer"));
-	
-	// check if the device is running iOS 4.1 or later
-	NSString *reqSysVer = @"4.1";
-	NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
-	BOOL osVersionSupported = ([currSysVer compare:reqSysVer
+    // check for presence of GKLocalPlayer API
+    Class gcClass = (NSClassFromString(@"GKLocalPlayer"));
+    
+    // check if the device is running iOS 4.1 or later
+    NSString *reqSysVer = @"4.1";
+    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+    BOOL osVersionSupported = ([currSysVer compare:reqSysVer
                                            options:NSNumericSearch] != NSOrderedAscending);
-	
-	return (gcClass && osVersionSupported);
+    
+    return (gcClass && osVersionSupported);
 }
 
 - (id)init {
@@ -125,7 +125,7 @@ static GCHelper *sharedHelper = nil;
 - (void)findMatchWithMinPlayers:(int)minPlayers maxPlayers:(int)maxPlayers viewController:(UIViewController *)viewController delegate:(id<GCHelperDelegate>)theDelegate {
     
     if (!gameCenterAvailable) return;
-
+    
     minGamePlayers = minPlayers;
     maxGamePlayers = maxPlayers;
     
@@ -138,7 +138,7 @@ static GCHelper *sharedHelper = nil;
         
         
         
-        GKMatchmakerViewController *mmvc = [[[GKMatchmakerViewController alloc] initWithInvite:pendingInvite] autorelease];
+        GKMatchmakerViewController *mmvc = [[GKMatchmakerViewController alloc] initWithInvite:pendingInvite];
         
         mmvc.matchmakerDelegate = self;
         [presentingViewController presentModalViewController:mmvc animated:YES];
@@ -150,13 +150,13 @@ static GCHelper *sharedHelper = nil;
         
         
         GKMatchRequest *request = [[GKMatchRequest alloc] init];
-
+        
         request.minPlayers = minPlayers;
         request.maxPlayers = maxPlayers;
         
         request.playersToInvite = pendingPlayersToInvite;
         
-        GKMatchmakerViewController *mmvc = [[[GKMatchmakerViewController alloc] initWithMatchRequest:request] autorelease];
+        GKMatchmakerViewController *mmvc = [[GKMatchmakerViewController alloc] initWithMatchRequest:request];
         mmvc.matchmakerDelegate = self;
         
         [presentingViewController presentModalViewController:mmvc animated:YES];
@@ -172,10 +172,10 @@ static GCHelper *sharedHelper = nil;
     if (!gameCenterAvailable) return;
     matchStarted = NO;
     self.match = nil;
-  
-    if (pendingInvite != nil) { 
+    
+    if (pendingInvite != nil) {
         
-        GKMatchmakerViewController *mmvc = [[[GKMatchmakerViewController alloc] initWithInvite:pendingInvite] autorelease];
+        GKMatchmakerViewController *mmvc = [[GKMatchmakerViewController alloc] initWithInvite:pendingInvite];
         mmvc.matchmakerDelegate = self;
         [presentingViewController presentModalViewController:mmvc animated:YES];
         
@@ -225,7 +225,7 @@ static GCHelper *sharedHelper = nil;
     
     NSString * playerID = player.playerID;
     [self handleMatch:theMatch player:playerID didChangeState:state];
-
+    
 }
 
 - (void)handleMatch:(GKMatch *)theMatch  player:(NSString *)playerID didChangeState:(GKPlayerConnectionState)state {
@@ -266,7 +266,7 @@ static GCHelper *sharedHelper = nil;
 - (void)match:(GKMatch *)theMatch didFailWithError:(NSError *)error {
     
     if (match != theMatch) return;
-
+    
     [delegate matchDidFailWithError:error];
     
 }
