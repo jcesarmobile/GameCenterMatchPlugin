@@ -17,32 +17,32 @@ function onDeviceReady() {
     
     
     
-    window.gameCenter.authenticate( function() {
+    window.GameCenterMatchPlugin.authenticate( function() {
         
-        window.gameCenter.startGame( startGameSuccess, nativePluginErrorHandler,maxPlayers);
+        window.GameCenterMatchPlugin.startGame( startGameSuccess, nativePluginErrorHandler,maxPlayers);
                                    
     }, nativePluginErrorHandler);
     
-    window.gameCenter.onSearchCancelled = function() {
+    window.GameCenterMatchPlugin.onSearchCancelled = function() {
         
         $("#start_button").show();
         $("#status").text("Search was Cancelled, Press Start button");
     
     }
     
-    window.gameCenter.onSearchFailed = function() {
+    window.GameCenterMatchPlugin.onSearchFailed = function() {
         
         $("#start_button").show();
         $("#status").text("Search Failed, Press Start button");
         
     }
     
-    window.gameCenter.receivedData = function(data) {
+    window.GameCenterMatchPlugin.receivedData = function(data) {
         console.log(JSON.stringify(data));
         
     }
     
-    window.gameCenter.matchEnded = function () {
+    window.GameCenterMatchPlugin.matchEnded = function () {
         
         console.log('match ended');
         $("#status").text("Match Ended");
@@ -50,10 +50,10 @@ function onDeviceReady() {
         
     }
     
-    window.gameCenter.playerDisconnected = function (player) {
+    window.GameCenterMatchPlugin.playerDisconnected = function (player) {
         alert('player disconnected '+player);
     }
-    window.gameCenter.playerConnected = function (player) {
+    window.GameCenterMatchPlugin.playerConnected = function (player) {
         alert('player connected '+player);
     }
     
@@ -66,7 +66,7 @@ function nativePluginErrorHandler (error) {
 
 function openGameCenter(){
 
-    window.gameCenter.startGame( startGameSuccess, nativePluginErrorHandler,maxPlayers);
+    window.GameCenterMatchPlugin.startGame( startGameSuccess, nativePluginErrorHandler,maxPlayers);
     
 }
 
@@ -74,7 +74,7 @@ function startGameSuccess(data){
     if(data.status=="started") {
         alert('game started');
         startNewGame();
-        window.gameCenter.getPlayers(function(players){alert(JSON.stringify(players));});
+        window.GameCenterMatchPlugin.getPlayers(function(players){alert(JSON.stringify(players));});
     }
 }
 				
@@ -91,7 +91,7 @@ function startNewGame(){
 function sendData() {
     
     var dataToSend = {"data":$("#data").val()};
-    window.gameCenter.sendGameData( function(result) {
+    window.GameCenterMatchPlugin.sendGameData( function(result) {
                                        
                                        alert(result);
                                        }, nativePluginErrorHandler, dataToSend );
@@ -100,7 +100,7 @@ function sendData() {
 
 function endGame(){
     
-    window.gameCenter.endGame(function(){
+    window.GameCenterMatchPlugin.endGame(function(){
                               alert("game ended");
                               $("#start_button").show();
                               $("#send_data").hide();
