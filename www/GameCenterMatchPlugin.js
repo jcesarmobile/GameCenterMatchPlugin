@@ -14,7 +14,7 @@
  
     }
      
-    GameCenter.prototype = {
+    GameCenterMatchPlugin.prototype = {
  
         authenticate: function(success, fail) {
             cordova.exec(success, fail, "GameCenterMatchPlugin", "authenticateLocalPlayer", []);
