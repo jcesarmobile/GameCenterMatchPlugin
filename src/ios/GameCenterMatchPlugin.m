@@ -152,20 +152,20 @@
     
     [[GCHelper sharedInstance].match disconnect];
     [GCHelper sharedInstance].match = nil;
-    NSString * javascriptString = @"window.gameCenter._matchEnded();";
+    NSString * javascriptString = @"window.GameCenterMatchPlugin._matchEnded();";
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
     
 }
 
 -(void)playerDisconnected:(NSString *)playerID {
     NSLog(@"player disconnected");
-    NSString * javascriptString = [NSString stringWithFormat:@"window.gameCenter._playerDisconnected('%@');",playerID];
+    NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._playerDisconnected('%@');",playerID];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
 }
 
 -(void)playerConnected:(NSString *)playerID {
     NSLog(@"player connected");
-    NSString * javascriptString = [NSString stringWithFormat:@"window.gameCenter._playerConnected('%@');",playerID];
+    NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._playerConnected('%@');",playerID];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
 }
 
@@ -178,7 +178,7 @@
     NSMutableDictionary * receivedData = [[NSMutableDictionary alloc]initWithDictionary:dictFromData];
     [receivedData setValue:playerID forKey:@"playerID"];
     NSLog(@"received data %@",receivedData);
-    NSString * javascriptString = [NSString stringWithFormat:@"window.gameCenter._receivedData(%@);",[receivedData JSONString]];
+    NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._receivedData(%@);",[receivedData JSONString]];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
     
     
@@ -192,27 +192,27 @@
 
 -(void)searchCancelled {
     
-    NSString * javascriptString = @"window.gameCenter._searchCancelled();";
+    NSString * javascriptString = @"window.GameCenterMatchPlugin._searchCancelled();";
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
 
 }
 
 -(void)searchFailed {
     
-    NSString * javascriptString = @"window.gameCenter._searchFailed();";
+    NSString * javascriptString = @"window.GameCenterMatchPlugin._searchFailed();";
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
     
 }
 
 -(void)connectionWithPlayerFailed:(NSString *)playerID withError:(NSError *)error {
-    NSString * javascriptString = [NSString stringWithFormat:@"window.gameCenter._connectionWithPlayerFailed('%@','%@');",playerID,error.localizedDescription];
+    NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._connectionWithPlayerFailed('%@','%@');",playerID,error.localizedDescription];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
 
 }
 
 -(void)matchDidFailWithError:(NSError *)error {
     
-    NSString * javascriptString = [NSString stringWithFormat:@"window.gameCenter._matchDidFailWithError('%@');",error.localizedDescription];
+    NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._matchDidFailWithError('%@');",error.localizedDescription];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
 }
 

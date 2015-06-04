@@ -1,6 +1,6 @@
 (function(window) {
  
-    var GameCenter = function() {
+    var GameCenterMatchPlugin = function() {
 
         this.onSearchCancelled = null;
         this.receivedData = null;
@@ -63,7 +63,7 @@
  
     cordova.addConstructor(function() {
                            
-        window.gameCenter = new GameCenter();
+        window.GameCenterMatchPlugin = new GameCenterMatchPlugin();
                            
     });
  
