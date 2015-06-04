@@ -17,22 +17,22 @@
     GameCenter.prototype = {
  
         authenticate: function(success, fail) {
-            cordova.exec(success, fail, "GameCenterPlugin", "authenticateLocalPlayer", []);
+            cordova.exec(success, fail, "GameCenterMatchPlugin", "authenticateLocalPlayer", []);
         },
         startGame: function (success, fail, players) {
-            cordova.exec( success, fail, "GameCenterPlugin", "startGame", [players]);
+            cordova.exec( success, fail, "GameCenterMatchPlugin", "startGame", [players]);
         },
         endGame: function (success) {
-            cordova.exec( success, null, "GameCenterPlugin", "endGame", []);
+            cordova.exec( success, null, "GameCenterMatchPlugin", "endGame", []);
         },
         getLocalPlayerId: function (success, fail) {
-            cordova.exec( success, fail, "GameCenterPlugin", "getLocalPlayerId", []);
+            cordova.exec( success, fail, "GameCenterMatchPlugin", "getLocalPlayerId", []);
         },
         getPlayers: function (success) {
-            cordova.exec( success, null, "GameCenterPlugin", "getPlayers", []);
+            cordova.exec( success, null, "GameCenterMatchPlugin", "getPlayers", []);
         },
         sendGameData: function (success, fail, data) {
-            cordova.exec( success, fail, "GameCenterPlugin", "sendGameData", [data]);
+            cordova.exec( success, fail, "GameCenterMatchPlugin", "sendGameData", [data]);
         },
         _searchCancelled: function() {
             if (typeof this.onSearchCancelled === 'function') { this.onSearchCancelled(); }
