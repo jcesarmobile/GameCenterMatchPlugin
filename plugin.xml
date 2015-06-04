@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="com.jcesarmobile.gamecentermatch"
+    version="1.0.0">
+
+    <name>Game Center Match Plugin</name>
+  <author>jcesarmobile</author>
+
+  <description>
+   This plugin makes possible to play real time matches using Game Center
+  </description>
+
+  <license>MIT</license>
+
+  <js-module src="www/GameCenterMatchPlugin.js" name="GameCenterMatchPlugin">
+      <clobbers target="GameCenterMatchPlugin" />
+  </js-module>
+
+  <engines>
+      <engine name="cordova" version="&gt;=3.0.0" />
+  </engines>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+          <feature name="GameCenterMatchPlugin">
+            <param name="ios-package" value="GameCenterMatchPlugin"/>
+          </feature>
+        </config-file>
+
+        <source-file src="src/ios/GameCenterMatchPlugin.h" />
+        <header-file src="src/ios/GameCenterMatchPlugin.m" />
+        <header-file src="src/ios/GCHelper.h" />
+        <header-file src="src/ios/GCHelper.m" />
+        <framework src="GameKit.framework" />
+    </platform>
+</plugin>
