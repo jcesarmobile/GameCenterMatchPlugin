@@ -8,7 +8,8 @@
 
 @interface GameCenterMatchPlugin : CDVPlugin <GCHelperDelegate>
 
-@property (nonatomic) NSInteger maxPlayers;
+@property (nonatomic) int maxPlayers;
+@property (nonatomic) int minPlayers;
 @property (strong, nonatomic) CDVPluginResult * pluginResult;
 @property (strong, nonatomic) CDVInvokedUrlCommand * command;
 

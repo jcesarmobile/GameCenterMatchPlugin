@@ -20,6 +20,7 @@
 @end
 
 @interface GCHelper : NSObject <GKMatchmakerViewControllerDelegate, GKMatchDelegate> {
+    
     BOOL gameCenterAvailable;
     BOOL userAuthenticated;
     UIViewController *presentingViewController;
@@ -30,6 +31,7 @@
     NSArray *pendingPlayersToInvite;
     NSInteger minGamePlayers;
     NSInteger maxGamePlayers;
+    
 }
 
 @property (assign, readonly) BOOL gameCenterAvailable;
