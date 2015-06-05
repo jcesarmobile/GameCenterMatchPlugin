@@ -19,8 +19,8 @@
         authenticate: function(success, fail) {
             cordova.exec(success, fail, "GameCenterMatchPlugin", "authenticateLocalPlayer", []);
         },
-        startGame: function (success, fail, players) {
-            cordova.exec( success, fail, "GameCenterMatchPlugin", "startGame", [players]);
+        startGame: function (success, fail, min, max) {
+            cordova.exec( success, fail, "GameCenterMatchPlugin", "startGame", [min,max]);
         },
         endGame: function (success) {
             cordova.exec( success, null, "GameCenterMatchPlugin", "endGame", []);

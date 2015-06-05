@@ -8,45 +8,62 @@
 
 
 - (void)authenticateLocalPlayer:(CDVInvokedUrlCommand*)command {
-   
+    
     [[GCHelper sharedInstance] authenticateLocalUserWithBlock:^(NSError *error) {
-        if (error == nil)
-        {
+        
+        if (error == nil) {
+            
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }
-        else
-        {
+            
+        } else {
+            
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            
         }
+        
     }];
 }
 
 - (void)startGame:(CDVInvokedUrlCommand*)command {
     
     GKMatchRequest *request = [[GKMatchRequest alloc] init];
-    NSInteger maxAllowed = 4;
+    int maxAllowed = 4;
+    int minAllowed = 2;
+    
     if ([request respondsToSelector:@selector(maxPlayersAllowedForMatchOfType:)]) {
-        maxAllowed = [GKMatchRequest maxPlayersAllowedForMatchOfType:GKMatchTypePeerToPeer];
+        
+        maxAllowed = (int)[GKMatchRequest maxPlayersAllowedForMatchOfType:GKMatchTypePeerToPeer];
     }
+    
     request = nil;
     
-    self.maxPlayers = [[command.arguments objectAtIndex:0]integerValue];
+    self.minPlayers = (int)[[command.arguments objectAtIndex:0]integerValue];
+    self.maxPlayers = (int)[[command.arguments objectAtIndex:1]integerValue];
+    
     if(self.maxPlayers>maxAllowed) {
-       [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"max players is %d",maxAllowed]] callbackId:command.callbackId];
+        
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"max players is %d",maxAllowed]] callbackId:command.callbackId];
+        
+    } else if(self.minPlayers<minAllowed) {
+        
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"min players is %d",minAllowed]] callbackId:command.callbackId];
+        
     } else {
+        
         self.command = command;
-        [self initGameWithMaxPlayers:self.maxPlayers];
+        [self initGameWithMinPlayers:self.minPlayers andMaxPlayers:self.maxPlayers];
         self.pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{@"status" : @"init"}];
         [self.pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:self.pluginResult callbackId:command.callbackId];
+        
     }
-    
     
 }
 
 -(void)endGame:(CDVInvokedUrlCommand *)command {
+    
     [[GCHelper sharedInstance].match disconnect];
     [GCHelper sharedInstance].match = nil;
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -59,15 +76,13 @@
     NSMutableArray * playersArray = [[NSMutableArray alloc]init];
     NSString *aKey;
     NSEnumerator *keyEnumerator = [[[GCHelper sharedInstance] getPlayers] keyEnumerator];
-    while (aKey = [keyEnumerator nextObject])
+    while (aKey = [keyEnumerator nextObject]) {
         
-    {
         GKPlayer * player = [[[GCHelper sharedInstance] getPlayers] objectForKey:aKey];
         NSDictionary * playerDict = @{@"alias":player.alias,@"displayName":player.displayName,@"playerID":player.playerID};
         [playersArray addObject:playerDict];
         
     }
-    
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:[playersArray copy]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -78,10 +93,15 @@
     
     CDVPluginResult* pluginResult = nil;
     GKPlayer * localPlayer = [GKLocalPlayer localPlayer];
+    
     if ([GKLocalPlayer localPlayer].authenticated) {
+        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:localPlayer.playerID];
+        
     } else {
+        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        
     }
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -89,12 +109,12 @@
 }
 
 - (void)sendGameData:(CDVInvokedUrlCommand*)command {
+    
     CDVPluginResult* pluginResult = nil;
     NSDictionary * dataDict = [command.arguments objectAtIndex:0];
     
-    
     if (![dataDict isEqual:[NSNull null]]) {
-
+        
         NSError * error;
         NSData *data =  [NSJSONSerialization dataWithJSONObject:dataDict
                                                         options:NSJSONWritingPrettyPrinted
@@ -118,21 +138,20 @@
             }
             
         }
-
         
     } else {
+        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"no data to send"];
+        
     }
-     
+    
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     
 }
 
-
-
--(void)initGameWithMaxPlayers:(int)players {
+-(void)initGameWithMinPlayers:(int)minPlayers andMaxPlayers:(int)maxPlayers {
     
-    [[GCHelper sharedInstance] findMatchWithMinPlayers:2 maxPlayers:players viewController:self.viewController delegate:self];
+    [[GCHelper sharedInstance] findMatchWithMinPlayers:minPlayers maxPlayers:maxPlayers viewController:self.viewController delegate:self];
     
 }
 
@@ -158,15 +177,19 @@
 }
 
 -(void)playerDisconnected:(NSString *)playerID {
+    
     NSLog(@"player disconnected");
     NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._playerDisconnected('%@');",playerID];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
+    
 }
 
 -(void)playerConnected:(NSString *)playerID {
+    
     NSLog(@"player connected");
     NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._playerConnected('%@');",playerID];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
+    
 }
 
 - (void)match:(GKMatch *)match didReceiveData:(NSData *)data fromPlayer:(NSString *)playerID {
@@ -194,7 +217,7 @@
     
     NSString * javascriptString = @"window.GameCenterMatchPlugin._searchCancelled();";
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
-
+    
 }
 
 -(void)searchFailed {
@@ -205,15 +228,17 @@
 }
 
 -(void)connectionWithPlayerFailed:(NSString *)playerID withError:(NSError *)error {
+    
     NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._connectionWithPlayerFailed('%@','%@');",playerID,error.localizedDescription];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
-
+    
 }
 
 -(void)matchDidFailWithError:(NSError *)error {
     
     NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._matchDidFailWithError('%@');",error.localizedDescription];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
+    
 }
 
 @end
