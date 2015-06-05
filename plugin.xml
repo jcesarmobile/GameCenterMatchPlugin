@@ -28,10 +28,11 @@
           </feature>
         </config-file>
 
-        <source-file src="src/ios/GameCenterMatchPlugin.h" />
-        <header-file src="src/ios/GameCenterMatchPlugin.m" />
+        <header-file src="src/ios/GameCenterMatchPlugin.h" />
+        <source-file src="src/ios/GameCenterMatchPlugin.m" />
         <header-file src="src/ios/GCHelper.h" />
-        <header-file src="src/ios/GCHelper.m" />
+        <source-file src="src/ios/GCHelper.m" />
+        
         <framework src="GameKit.framework" />
     </platform>
 </plugin>
