@@ -42,6 +42,14 @@
     self.minPlayers = (int)[[command.arguments objectAtIndex:0]integerValue];
     self.maxPlayers = (int)[[command.arguments objectAtIndex:1]integerValue];
     
+    if (self.minPlayers>self.maxPlayers) {
+        
+        int temp = self.maxPlayers;
+        self.maxPlayers = self.minPlayers;
+        self.minPlayers = temp;
+    
+    }
+    
     if(self.maxPlayers>maxAllowed) {
         
         [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"max players is %d",maxAllowed]] callbackId:command.callbackId];
