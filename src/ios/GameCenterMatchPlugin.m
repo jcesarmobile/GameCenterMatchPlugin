@@ -217,7 +217,7 @@
 
 -(void)inviteReceived {
     
-    [self initGameWithMaxPlayers:self.maxPlayers];
+    [self initGameWithMinPlayers:self.minPlayers andMaxPlayers:self.maxPlayers];
     
 }
 
