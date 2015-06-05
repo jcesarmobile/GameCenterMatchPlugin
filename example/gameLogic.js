@@ -1,4 +1,5 @@
 var maxPlayers = 2;
+var minPlayers = 2;
 $(document).ready(function() {
 
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -19,7 +20,7 @@ function onDeviceReady() {
     
     window.GameCenterMatchPlugin.authenticate( function() {
         
-        window.GameCenterMatchPlugin.startGame( startGameSuccess, nativePluginErrorHandler,maxPlayers);
+        window.GameCenterMatchPlugin.startGame( startGameSuccess, nativePluginErrorHandler,minPlayers,maxPlayers);
                                    
     }, nativePluginErrorHandler);
     
@@ -66,7 +67,7 @@ function nativePluginErrorHandler (error) {
 
 function openGameCenter(){
 
-    window.GameCenterMatchPlugin.startGame( startGameSuccess, nativePluginErrorHandler,maxPlayers);
+    window.GameCenterMatchPlugin.startGame( startGameSuccess, nativePluginErrorHandler,minPlayers,maxPlayers);
     
 }
 
