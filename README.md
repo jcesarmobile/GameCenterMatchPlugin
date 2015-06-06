@@ -92,7 +92,8 @@ window.GameCenterMatchPlugin.playerConnected = function (player) {}
 player is the id of the player that connected    
     
    
-   
+
+See the example folder for a simple example of use that sends words from an input
     
 
 
