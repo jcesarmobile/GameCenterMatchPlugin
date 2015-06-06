@@ -6,20 +6,21 @@
 #import <GameKit/GameKit.h>
 
 @protocol GCHelperDelegate
+
 - (void)matchStarted;
 - (void)matchEnded;
 - (void)playerDisconnected:(NSString *)playerID;
 - (void)playerConnected:(NSString *)playerID;
 - (void)match:(GKMatch *)match didReceiveData:(NSData *)data
    fromPlayer:(NSString *)playerID;
-- (void)inviteReceived;
 -(void)searchCancelled;
 -(void)searchFailed;
 -(void)connectionWithPlayerFailed:(NSString *)playerID withError:(NSError *)error;
 -(void)matchDidFailWithError:(NSError *)error;
+
 @end
 
-@interface GCHelper : NSObject <GKMatchmakerViewControllerDelegate, GKMatchDelegate> {
+@interface GCHelper : NSObject <GKMatchmakerViewControllerDelegate, GKMatchDelegate, GKLocalPlayerListener> {
     
     BOOL gameCenterAvailable;
     BOOL userAuthenticated;
@@ -42,14 +43,12 @@
 @property (retain) GKInvite *pendingInvite;
 @property (retain) NSArray *pendingPlayersToInvite;
 
-- (void)findMatchWithMinPlayers:(int)minPlayers maxPlayers:(int)maxPlayers
-                 viewController:(UIViewController *)viewController
-                       delegate:(id<GCHelperDelegate>)theDelegate;
+- (void)findMatchWithMinPlayers:(int)minPlayers maxPlayers:(int)maxPlayers;
+- (void)findMatchWithInvite;
 - (NSDictionary *)getPlayers;
 
 + (GCHelper *)sharedInstance;
-- (void)authenticateLocalUserWithBlock:(void (^)(NSError *err))block;
-
--(void)showInviteVC;
+- (void)authenticateLocalUserWithViewController:(UIViewController *)viewController
+                                       delegate:(id<GCHelperDelegate>)theDelegate andBlock:(void (^)(NSError *err))block;
 
 @end

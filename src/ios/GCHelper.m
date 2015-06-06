@@ -73,18 +73,32 @@ static GCHelper *sharedHelper = nil;
     if ([GKLocalPlayer localPlayer].isAuthenticated && !userAuthenticated) {
         userAuthenticated = YES;
         
-        [GKMatchmaker sharedMatchmaker].inviteHandler = ^(GKInvite *acceptedInvite, NSArray *playersToInvite) {
+        __weak GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
+        if ([localPlayer respondsToSelector:@selector(registerListener:)]) {
             
-            self.pendingInvite = acceptedInvite;
-            self.pendingPlayersToInvite = playersToInvite;
-            [delegate inviteReceived];
+            [localPlayer registerListener:self];
             
-        };
+        } else {
+            
+            [GKMatchmaker sharedMatchmaker].inviteHandler = ^(GKInvite *acceptedInvite, NSArray *playersToInvite) {
+                
+                self.pendingInvite = acceptedInvite;
+                self.pendingPlayersToInvite = playersToInvite;
+                [self findMatchWithInvite];
+                
+            };
+            
+        }
         
     } else if (![GKLocalPlayer localPlayer].isAuthenticated && userAuthenticated) {
         
         userAuthenticated = NO;
-    
+        __weak GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
+        if ([localPlayer respondsToSelector:@selector(unregisterListener:)]) {
+            
+            [localPlayer unregisterListener:self];
+        }
+        
     }
     
 }
@@ -120,51 +134,47 @@ static GCHelper *sharedHelper = nil;
 - (NSMutableDictionary *)getPlayers {
     
     return playersDict;
-
+    
 }
 
 #pragma mark User functions
 
-- (void)authenticateLocalUserWithBlock:(void (^)(NSError *err))block {
+- (void)authenticateLocalUserWithViewController:(UIViewController *)viewController
+                                       delegate:(id<GCHelperDelegate>)theDelegate andBlock:(void (^)(NSError *err))block {
     
     if (!gameCenterAvailable) return;
+    
+    delegate = theDelegate;
+    presentingViewController = viewController;
     
     if ([GKLocalPlayer localPlayer].authenticated == NO) {
         
         [[GKLocalPlayer localPlayer] authenticateWithCompletionHandler:block];
-    
+        
     }
     
 }
 
-- (void)findMatchWithMinPlayers:(int)minPlayers maxPlayers:(int)maxPlayers viewController:(UIViewController *)viewController delegate:(id<GCHelperDelegate>)theDelegate {
+- (void)findMatchWithMinPlayers:(int)minPlayers maxPlayers:(int)maxPlayers {
     
     if (!gameCenterAvailable) return;
     
     minGamePlayers = minPlayers;
     maxGamePlayers = maxPlayers;
-    
     matchStarted = NO;
     self.match = nil;
-    delegate = theDelegate;
-    self.presentingViewController = viewController;
-    GKMatchmakerViewController *mmvc;
-    if (pendingInvite != nil) {
-        
-        mmvc = [[GKMatchmakerViewController alloc] initWithInvite:pendingInvite];
-        
-    } else {
-        
-        GKMatchRequest *request = [[GKMatchRequest alloc] init];
-        
-        request.minPlayers = minPlayers;
-        request.maxPlayers = maxPlayers;
-        
-        request.playersToInvite = pendingPlayersToInvite;
-        
-        mmvc = [[GKMatchmakerViewController alloc] initWithMatchRequest:request];
-        
-    }
+    
+    
+    GKMatchRequest *request = [[GKMatchRequest alloc] init];
+    
+    request.minPlayers = minPlayers;
+    request.maxPlayers = maxPlayers;
+    
+    request.playersToInvite = pendingPlayersToInvite;
+    
+    GKMatchmakerViewController * mmvc = [[GKMatchmakerViewController alloc] initWithMatchRequest:request];
+    
+    
     
     mmvc.matchmakerDelegate = self;
     
@@ -173,24 +183,24 @@ static GCHelper *sharedHelper = nil;
     [presentingViewController presentViewController:mmvc animated:YES completion:nil];
     
 }
--(void)showInviteVC {
+
+- (void)findMatchWithInvite {
     
     if (!gameCenterAvailable) return;
+    
     matchStarted = NO;
     self.match = nil;
+    GKMatchmakerViewController * mmvc = [[GKMatchmakerViewController alloc] initWithInvite:pendingInvite];
     
-    if (pendingInvite != nil) {
-        
-        GKMatchmakerViewController *mmvc = [[GKMatchmakerViewController alloc] initWithInvite:pendingInvite];
-        mmvc.matchmakerDelegate = self;
-        [presentingViewController presentViewController:mmvc animated:YES completion:nil];
-        
-        self.pendingInvite = nil;
-        self.pendingPlayersToInvite = nil;
-        
-    }
+    mmvc.matchmakerDelegate = self;
+    
+    self.pendingInvite = nil;
+    self.pendingPlayersToInvite = nil;
+    [presentingViewController presentViewController:mmvc animated:YES completion:nil];
     
 }
+
+
 
 #pragma mark GKMatchmakerViewControllerDelegate
 
@@ -199,7 +209,7 @@ static GCHelper *sharedHelper = nil;
     
     [delegate searchCancelled];
     [presentingViewController dismissViewControllerAnimated:YES completion:nil];
-
+    
 }
 
 // Matchmaking has failed with an error
@@ -220,9 +230,9 @@ static GCHelper *sharedHelper = nil;
     if (!matchStarted && match.expectedPlayerCount == 0) {
         
         [self lookupPlayers];
-    
+        
     }
-
+    
 }
 
 #pragma mark GKMatchDelegate
@@ -233,7 +243,7 @@ static GCHelper *sharedHelper = nil;
     if (match != theMatch) return;
     
     [delegate match:theMatch didReceiveData:data fromPlayer:playerID];
-
+    
 }
 
 -(void)match:(GKMatch *)theMatch player:(GKPlayer *)player didChangeConnectionState:(GKPlayerConnectionState)state {
@@ -244,7 +254,7 @@ static GCHelper *sharedHelper = nil;
 }
 
 - (void)handleMatch:(GKMatch *)theMatch  player:(NSString *)playerID didChangeState:(GKPlayerConnectionState)state {
-
+    
     if (match != theMatch) return;
     
     switch (state) {
@@ -252,16 +262,16 @@ static GCHelper *sharedHelper = nil;
         case GKPlayerStateConnected:
             
             if (!matchStarted && theMatch.expectedPlayerCount == 0) {
-            
+                
                 [self lookupPlayers];
-            
+                
             }
             
             [delegate playerConnected:playerID];
             break;
-        
-        case GKPlayerStateDisconnected:
             
+        case GKPlayerStateDisconnected:
+            [self.playersDict removeObjectForKey:playerID];
             [delegate playerDisconnected:playerID];
             break;
             
@@ -297,13 +307,35 @@ static GCHelper *sharedHelper = nil;
 -(BOOL)match:(GKMatch *)match shouldReinviteDisconnectedPlayer:(GKPlayer *)player {
     
     return YES;
-
+    
 }
 
 -(BOOL)match:(GKMatch *)match shouldReinvitePlayer:(NSString *)playerID {
-
+    
     return YES;
+    
+}
 
+#pragma mark GKInviteEventListener
+
+-(void)player:(GKPlayer *)player didAcceptInvite:(GKInvite *)invite {
+    
+    pendingInvite = invite;
+    [self findMatchWithInvite];
+    
+}
+
+-(void)player:(GKPlayer *)player didRequestMatchWithPlayers:(NSArray *)playerIDsToInvite {
+    
+    GKMatchRequest *request = [[GKMatchRequest alloc] init];
+    request.minPlayers = 2;
+    request.maxPlayers = [playerIDsToInvite count];
+    request.playersToInvite = playerIDsToInvite;
+    
+    GKMatchmakerViewController *mmvc = [[GKMatchmakerViewController alloc] initWithMatchRequest:request];
+    mmvc.matchmakerDelegate = self;
+    [presentingViewController presentViewController:mmvc animated:YES completion:nil];
+    
 }
 
 @end

@@ -20,5 +20,4 @@
 - (void)getLocalPlayerId:(CDVInvokedUrlCommand*)command;
 - (void)sendGameData:(CDVInvokedUrlCommand*)command;
 
-
 @end

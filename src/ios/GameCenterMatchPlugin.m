@@ -9,7 +9,7 @@
 
 - (void)authenticateLocalPlayer:(CDVInvokedUrlCommand*)command {
     
-    [[GCHelper sharedInstance] authenticateLocalUserWithBlock:^(NSError *error) {
+    [[GCHelper sharedInstance] authenticateLocalUserWithViewController:self.viewController delegate:self andBlock:^(NSError *error) {
         
         if (error == nil) {
             
@@ -47,7 +47,7 @@
         int temp = self.maxPlayers;
         self.maxPlayers = self.minPlayers;
         self.minPlayers = temp;
-    
+        
     }
     
     if(self.maxPlayers>maxAllowed) {
@@ -129,19 +129,28 @@
                                                           error:&error];
         if (!data) {
             
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Failed with error: %@", error]];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Error: %@", error.localizedDescription]];
             
         } else {
             
-            BOOL success = [[GCHelper sharedInstance].match sendDataToAllPlayers:data withDataMode:GKMatchSendDataReliable error:&error];
+            NSError* sendError ;
+            BOOL success = [[GCHelper sharedInstance].match sendDataToAllPlayers:data withDataMode:GKMatchSendDataReliable error:&sendError];
+            
+            
             
             if (!success) {
                 
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Failed with error: %@", error]];
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Error: %@", sendError.localizedDescription]];
                 
             } else {
                 
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"sent"];
+                if ([[GCHelper sharedInstance].match.playerIDs count]<self.minPlayers-1) {
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No players"];
+                } else {
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"sent"];
+                }
+                
+                
                 
             }
             
@@ -159,7 +168,7 @@
 
 -(void)initGameWithMinPlayers:(int)minPlayers andMaxPlayers:(int)maxPlayers {
     
-    [[GCHelper sharedInstance] findMatchWithMinPlayers:minPlayers maxPlayers:maxPlayers viewController:self.viewController delegate:self];
+    [[GCHelper sharedInstance] findMatchWithMinPlayers:minPlayers maxPlayers:maxPlayers];
     
 }
 
@@ -186,7 +195,6 @@
 
 -(void)playerDisconnected:(NSString *)playerID {
     
-    NSLog(@"player disconnected");
     NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._playerDisconnected('%@');",playerID];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
     
@@ -194,7 +202,6 @@
 
 -(void)playerConnected:(NSString *)playerID {
     
-    NSLog(@"player connected");
     NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._playerConnected('%@');",playerID];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
     
@@ -208,16 +215,9 @@
                                                                    error:&error];
     NSMutableDictionary * receivedData = [[NSMutableDictionary alloc]initWithDictionary:dictFromData];
     [receivedData setValue:playerID forKey:@"playerID"];
-    NSLog(@"received data %@",receivedData);
     NSString * javascriptString = [NSString stringWithFormat:@"window.GameCenterMatchPlugin._receivedData(%@);",[receivedData JSONString]];
     [self.webView stringByEvaluatingJavaScriptFromString:javascriptString];
     
-    
-}
-
--(void)inviteReceived {
-    
-    [self initGameWithMinPlayers:self.minPlayers andMaxPlayers:self.maxPlayers];
     
 }
 
