@@ -13,6 +13,10 @@ Why? Because with this plugin you can add real time online game without a server
 Installation:
 ============
 
+From npm
+cordova plugin add game-center-match-plugin
+
+From github
 cordova plugin add https://github.com/jcesarmobile/GameCenterMatchPlugin.git
 
 
