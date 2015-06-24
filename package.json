@@ -1,0 +1,31 @@
+{
+  "name": "GameCenterMatchPlugin",
+  "version": "1.0.0",
+  "description": "\n   This plugin makes possible to play real time matches using Game Center\n  ",
+  "cordova": {
+    "id": "com.jcesarmobile.GameCenterMatchPlugin",
+    "platforms": [
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcesarmobile/GameCenterMatchPlugin.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    }
+  ],
+  "author": "jcesarmobile",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jcesarmobile/GameCenterMatchPlugin/issues"
+  },
+  "homepage": "https://github.com/jcesarmobile/GameCenterMatchPlugin#readme"
+}
