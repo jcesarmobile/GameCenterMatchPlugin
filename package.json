@@ -1,5 +1,5 @@
 {
-  "name": "GameCenterMatchPlugin",
+  "name": "game-center-match-plugin",
   "version": "1.0.0",
   "description": "\n   This plugin makes possible to play real time matches using Game Center\n  ",
   "cordova": {
